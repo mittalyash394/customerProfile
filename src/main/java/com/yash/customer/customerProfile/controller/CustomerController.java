@@ -1,6 +1,8 @@
 package com.yash.customer.customerProfile.controller;
 
+import com.yash.customer.customerProfile.dto.CustomerLoginDto;
 import com.yash.customer.customerProfile.dto.RegisterCustomerDto;
+import com.yash.customer.customerProfile.dto.UpdatePasswordDto;
 import com.yash.customer.customerProfile.entity.CustomerProfile;
 import com.yash.customer.customerProfile.service.CustomerService;
 import org.apache.logging.log4j.LogManager;
@@ -43,6 +45,34 @@ public class CustomerController {
         log.info("Getting the list for the customers");
         List<CustomerProfile> customerProfileList = customerService.getAllCustomers();
         return customerProfileList;
+    }
+
+    @GetMapping(value = "getCustomerById/{customerId}", headers = "Accept=application/json")
+    public CustomerProfile getCustomerById(@PathVariable String customerId){
+        log.info("Finding the customer by the customerId");
+        CustomerProfile customerProfile = customerService.getCustomerById(customerId);
+        return customerProfile;
+    }
+
+    @PutMapping(value = "updatePassword", headers = "Accept=application/json")
+    public CustomerProfile updatePassword(@RequestBody UpdatePasswordDto updatePasswordDto){
+        log.info("Updating the password by the emailId");
+        CustomerProfile customerProfile = customerService.updatePassword(updatePasswordDto);
+        return customerProfile;
+    }
+
+    @DeleteMapping(value = "deleteCustomer/{customerId}", headers = "Accept=application/json")
+    public boolean deleteCustomerById(@PathVariable String customerId){
+        log.info("Deleting the customer by customerId");
+        boolean isDeleted = customerService.deleteCustomerById(customerId);
+        return isDeleted;
+    }
+
+    @PostMapping(value = "customerLogin", headers = "Accept=application/json")
+    public CustomerProfile customerLogin(@RequestBody CustomerLoginDto customerLoginDto){
+        log.info("Login into the system");
+        CustomerProfile customerProfile = customerService.loginCustomer(customerLoginDto);
+        return customerProfile;
     }
 
 }
