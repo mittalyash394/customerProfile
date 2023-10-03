@@ -1,6 +1,8 @@
 package com.yash.customer.customerProfile.service;
 
+import com.yash.customer.customerProfile.dto.CustomerLoginDto;
 import com.yash.customer.customerProfile.dto.RegisterCustomerDto;
+import com.yash.customer.customerProfile.dto.UpdatePasswordDto;
 import com.yash.customer.customerProfile.entity.CustomerProfile;
 import com.yash.customer.customerProfile.repo.CustomerRepo;
 import org.apache.logging.log4j.LogManager;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService{
@@ -43,5 +46,63 @@ public class CustomerServiceImpl implements CustomerService{
         List<CustomerProfile> customerProfiles = customerRepo.findAll();
         log.info("The list for the customers has been printed");
         return customerProfiles;
+    }
+
+    @Override
+    public CustomerProfile getCustomerById(String customerId) {
+        log.info("Getting the customer details from the DB");
+        Optional<CustomerProfile> customerProfile = customerRepo.findById(customerId);
+        if(customerProfile == null){
+            throw new RuntimeException("No customer found with this customerId");
+        }
+        return customerProfile.get();
+    }
+
+    @Override
+    public CustomerProfile updatePassword(UpdatePasswordDto updatePasswordDto) {
+        log.info("Updating the customer password in database");
+        CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(updatePasswordDto.getEmailId());
+        if(customerProfileFromDB==null){
+            throw new RuntimeException("No customer found for this customer");
+        }
+        String customerId = customerProfileFromDB.getCustomerId();
+        Date date = new Date();
+        Optional<CustomerProfile> customerProfileByUserId = customerRepo.findById(customerId);
+        CustomerProfile customerProfile = new CustomerProfile();
+        customerProfile.setCustomerId(customerId);
+        customerProfile.setCustomerFirstName(customerProfileFromDB.getCustomerFirstName());
+        customerProfile.setCustomerLastName(customerProfile.getCustomerLastName());
+        customerProfile.setCustomerEmailId(customerProfileFromDB.getCustomerEmailId());
+        customerProfile.setCustomerPassword(updatePasswordDto.getUpdatePassword());
+        customerProfile.setCustomerConfirmPassword(updatePasswordDto.getUpdateConfirmPassword());
+        customerProfile.setCustomerBalance(customerProfileFromDB.getCustomerBalance());
+        customerProfile.setCreatedAt(customerProfileFromDB.getCreatedAt());
+        customerProfile.setUpdatedAt(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date));
+        customerRepo.save(customerProfile);
+        return customerProfile;
+    }
+
+    @Override
+    public boolean deleteCustomerById(String customerId) {
+        log.info("Deleting the customer by ID");
+        Optional<CustomerProfile> customerProfileFromDB = customerRepo.findById(customerId);
+        if(customerProfileFromDB.isEmpty()){
+            throw new RuntimeException("No customer found for the customerId");
+        }
+        boolean isDeleted = customerRepo.deleteByCustomerId(customerId);
+        return isDeleted;
+    }
+
+    @Override
+    public CustomerProfile loginCustomer(CustomerLoginDto customerLoginDto) {
+        CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(customerLoginDto.getCustomerEmailId());
+        if(customerProfileFromDB == null){
+            throw new RuntimeException("No customer found for the given emailId");
+        }
+        CustomerProfile customerProfile = customerRepo.findByEmailAndPassword(customerLoginDto.getCustomerEmailId(), customerLoginDto.getCustomerPassword());
+        if(customerProfile == null){
+            throw new RuntimeException("The password is wrong for the emailId");
+        }
+        return customerProfile;
     }
 }
