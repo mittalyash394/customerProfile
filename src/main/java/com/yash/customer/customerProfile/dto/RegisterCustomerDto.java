@@ -14,6 +14,6 @@ public class RegisterCustomerDto {
     private String customerEmailId;
     private String customerPassword;
     private String customerConfirmPassword;
-    private String customerBalance;
+    private float customerBalance;
 
 }

@@ -27,17 +27,23 @@ public class CustomerServiceImpl implements CustomerService{
     public CustomerProfile registerCustomer(RegisterCustomerDto registerCustomerDto) {
         log.info("The registration for the customer has been started");
         Date date = new Date();
-        CustomerProfile customerProfile = new CustomerProfile();
-        customerProfile.setCustomerFirstName(registerCustomerDto.getCustomerFirstName());
-        customerProfile.setCustomerLastName(registerCustomerDto.getCustomerLastName());
-        customerProfile.setCustomerEmailId(registerCustomerDto.getCustomerEmailId());
-        customerProfile.setCustomerPassword(registerCustomerDto.getCustomerPassword());
-        customerProfile.setCustomerConfirmPassword(registerCustomerDto.getCustomerConfirmPassword());
-        customerProfile.setCustomerBalance(registerCustomerDto.getCustomerBalance());
-        customerProfile.setCreatedAt(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date));
-        customerRepo.save(customerProfile);
-        log.info("The registration has been done");
-        return customerProfile;
+        CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(registerCustomerDto.getCustomerEmailId());
+        if(customerProfileFromDB != null){
+            throw new RuntimeException("The customer is already present with this emaildId");
+        }
+        else {
+            CustomerProfile customerProfile = new CustomerProfile();
+            customerProfile.setCustomerFirstName(registerCustomerDto.getCustomerFirstName());
+            customerProfile.setCustomerLastName(registerCustomerDto.getCustomerLastName());
+            customerProfile.setCustomerEmailId(registerCustomerDto.getCustomerEmailId());
+            customerProfile.setCustomerPassword(registerCustomerDto.getCustomerPassword());
+            customerProfile.setCustomerConfirmPassword(registerCustomerDto.getCustomerConfirmPassword());
+            customerProfile.setCustomerBalance(registerCustomerDto.getCustomerBalance());
+            customerProfile.setCreatedAt(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date));
+            customerRepo.save(customerProfile);
+            log.info("The registration has been done");
+            return customerProfile;
+        }
     }
 
     @Override
@@ -52,7 +58,7 @@ public class CustomerServiceImpl implements CustomerService{
     public CustomerProfile getCustomerById(String customerId) {
         log.info("Getting the customer details from the DB");
         Optional<CustomerProfile> customerProfile = customerRepo.findById(customerId);
-        if(customerProfile == null){
+        if(customerProfile.get() == null){
             throw new RuntimeException("No customer found with this customerId");
         }
         return customerProfile.get();
@@ -63,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService{
         log.info("Updating the customer password in database");
         CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(updatePasswordDto.getEmailId());
         if(customerProfileFromDB==null){
-            throw new RuntimeException("No customer found for this customer");
+            throw new RuntimeException("No customer found for this emailId");
         }
         String customerId = customerProfileFromDB.getCustomerId();
         Date date = new Date();
