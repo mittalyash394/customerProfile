@@ -4,6 +4,9 @@ import com.yash.customer.customerProfile.dto.CustomerLoginDto;
 import com.yash.customer.customerProfile.dto.RegisterCustomerDto;
 import com.yash.customer.customerProfile.dto.UpdatePasswordDto;
 import com.yash.customer.customerProfile.entity.CustomerProfile;
+import com.yash.customer.customerProfile.exception.AlreadyPresentCustomerException;
+import com.yash.customer.customerProfile.exception.NoCustomerFoundException;
+import com.yash.customer.customerProfile.exception.WrongCredentialException;
 import com.yash.customer.customerProfile.repo.CustomerRepo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +32,7 @@ public class CustomerServiceImpl implements CustomerService{
         Date date = new Date();
         CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(registerCustomerDto.getCustomerEmailId());
         if(customerProfileFromDB != null){
-            throw new RuntimeException("The customer is already present with this emaildId");
+            throw new AlreadyPresentCustomerException("The customer is already present with this emaildId");
         }
         else {
             CustomerProfile customerProfile = new CustomerProfile();
@@ -59,7 +62,7 @@ public class CustomerServiceImpl implements CustomerService{
         log.info("Getting the customer details from the DB");
         Optional<CustomerProfile> customerProfile = customerRepo.findById(customerId);
         if(customerProfile.get() == null){
-            throw new RuntimeException("No customer found with this customerId");
+            throw new NoCustomerFoundException("No customer found with this customerId");
         }
         return customerProfile.get();
     }
@@ -69,7 +72,7 @@ public class CustomerServiceImpl implements CustomerService{
         log.info("Updating the customer password in database");
         CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(updatePasswordDto.getEmailId());
         if(customerProfileFromDB==null){
-            throw new RuntimeException("No customer found for this emailId");
+            throw new NoCustomerFoundException("No customer found for this emailId");
         }
         String customerId = customerProfileFromDB.getCustomerId();
         Date date = new Date();
@@ -93,7 +96,7 @@ public class CustomerServiceImpl implements CustomerService{
         log.info("Deleting the customer by ID");
         Optional<CustomerProfile> customerProfileFromDB = customerRepo.findById(customerId);
         if(customerProfileFromDB.isEmpty()){
-            throw new RuntimeException("No customer found for the customerId");
+            throw new NoCustomerFoundException("No customer found for the customerId");
         }
         boolean isDeleted = customerRepo.deleteByCustomerId(customerId);
         return isDeleted;
@@ -103,11 +106,11 @@ public class CustomerServiceImpl implements CustomerService{
     public CustomerProfile loginCustomer(CustomerLoginDto customerLoginDto) {
         CustomerProfile customerProfileFromDB = customerRepo.findByEmailId(customerLoginDto.getCustomerEmailId());
         if(customerProfileFromDB == null){
-            throw new RuntimeException("No customer found for the given emailId");
+            throw new NoCustomerFoundException("No customer found for the given emailId");
         }
         CustomerProfile customerProfile = customerRepo.findByEmailAndPassword(customerLoginDto.getCustomerEmailId(), customerLoginDto.getCustomerPassword());
         if(customerProfile == null){
-            throw new RuntimeException("The password is wrong for the emailId");
+            throw new WrongCredentialException("The password is wrong for the emailId");
         }
         return customerProfile;
     }

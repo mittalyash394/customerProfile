@@ -4,6 +4,7 @@ import com.yash.customer.customerProfile.dto.CustomerLoginDto;
 import com.yash.customer.customerProfile.dto.RegisterCustomerDto;
 import com.yash.customer.customerProfile.dto.UpdatePasswordDto;
 import com.yash.customer.customerProfile.entity.CustomerProfile;
+import com.yash.customer.customerProfile.exception.*;
 import com.yash.customer.customerProfile.service.CustomerService;
 import com.yash.customer.customerProfile.utility.PayloadCheck;
 import org.apache.logging.log4j.LogManager;
@@ -41,13 +42,13 @@ public class CustomerController {
         CustomerProfile customerProfile = null;
         log.info("Registration of customer");
         if(!payloadCheck.isRegisterCustomerPayloadValid(registerCustomerDto)){
-            throw new RuntimeException("The registerCustomerPayload is not valid");
+            throw new RegisterPayloadException("The registerCustomerPayload is not valid");
         }
         try {
             customerProfile = customerService.registerCustomer(registerCustomerDto);
             log.info("The registration for the customer has been possessed");
-        }catch (Exception e){
-            throw new RuntimeException(e.getLocalizedMessage());
+        }catch (AlreadyPresentCustomerException alreadyPresentCustomerException){
+            throw new AlreadyPresentCustomerException(alreadyPresentCustomerException.getLocalizedMessage());
         }
         return customerProfile;
     }
@@ -67,13 +68,13 @@ public class CustomerController {
         log.info("Finding the customer by the customerId");
         CustomerProfile customerProfile = null;
         if(!payloadCheck.isCustomerIdValid(customerId)){
-            throw new RuntimeException("The customerId is not valid");
+            throw new CustomerIdNullException("The customerId is not valid");
         }
         try {
             customerProfile = customerService.getCustomerById(customerId);
-        }catch (Exception e){
-            log.error(e);
-            throw new RuntimeException(e.getLocalizedMessage());
+        }catch (NoCustomerFoundException noCustomerFoundException){
+            log.error(noCustomerFoundException);
+            throw new NoCustomerFoundException(noCustomerFoundException.getLocalizedMessage());
         }
 
         return customerProfile;
@@ -84,14 +85,14 @@ public class CustomerController {
         log.info("Updating the password by the emailId");
         CustomerProfile customerProfile = null;
         if(!payloadCheck.isUpdatePasswordPayloadValid(updatePasswordDto)){
-            throw new RuntimeException("The updatePassword payload is not valid");
+            throw new UpdatePasswordPayloadException("The updatePassword payload is not valid");
         }
         try {
             customerProfile = customerService.updatePassword(updatePasswordDto);
         }
-        catch (Exception e){
-            log.error(e);
-            throw new RuntimeException(e.getLocalizedMessage());
+        catch (NoCustomerFoundException noCustomerFoundException){
+            log.error(noCustomerFoundException);
+            throw new NoCustomerFoundException(noCustomerFoundException.getLocalizedMessage());
         }
         return customerProfile;
     }
@@ -101,13 +102,13 @@ public class CustomerController {
         log.info("Deleting the customer by customerId");
         boolean isDeleted = false;
         if(!payloadCheck.isCustomerIdValid(customerId)){
-            throw new RuntimeException("The customerId is not valid");
+            throw new CustomerIdNullException("The customerId is not valid");
         }
         try {
             isDeleted = customerService.deleteCustomerById(customerId);
-        }catch (Exception e){
-            log.error(e);
-            throw new RuntimeException(e.getLocalizedMessage());
+        }catch (NoCustomerFoundException noCustomerFoundException){
+            log.error(noCustomerFoundException);
+            throw new NoCustomerFoundException(noCustomerFoundException.getLocalizedMessage());
         }
         return isDeleted;
     }
@@ -117,13 +118,13 @@ public class CustomerController {
         log.info("Login into the system");
         CustomerProfile customerProfile = null;
         if(!payloadCheck.isLoginPayloadValid(customerLoginDto)){
-            throw new RuntimeException("The login payload is not valid");
+            throw new LoginPayloadException("The login payload is not valid");
         }
         try {
             customerProfile = customerService.loginCustomer(customerLoginDto);
-        }catch (Exception e){
-            log.error(e);
-            throw new RuntimeException(e.getLocalizedMessage());
+        }catch (NoCustomerFoundException noCustomerFoundException){
+            log.error(noCustomerFoundException);
+            throw new NoCustomerFoundException(noCustomerFoundException.getLocalizedMessage());
         }
         return customerProfile;
     }
