@@ -157,4 +157,55 @@ public class ExceptionHandlerController extends ResponseEntityExceptionHandler {
         );
     }
 
+    @ExceptionHandler(EmailIdFormatException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage emailIdFormatExceptions(EmailIdFormatException emailIdFormatException) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date)),
+                emailIdFormatException.getMessage(),
+                "The format for emailId is wrong"
+        );
+    }
+
+    @ExceptionHandler(PasswordFormatException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage passwordFormatExceptions(PasswordFormatException passwordFormatException) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date)),
+                passwordFormatException.getMessage(),
+                "The format for password is wrong"
+        );
+    }
+
+
+    @ExceptionHandler(FirstNameFormatException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage firstNameFormatExceptions(FirstNameFormatException firstNameFormatException) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date)),
+                firstNameFormatException.getMessage(),
+                "The format for firstName is wrong"
+        );
+    }
+
+    @ExceptionHandler(LastNameFormatException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage lastNameFormatExceptions(LastNameFormatException lastNameFormatException) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date)),
+                lastNameFormatException.getMessage(),
+                "The format for lastName is wrong"
+        );
+    }
+
+    @ExceptionHandler(ConfirmPasswordFormatException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorMessage lastNameFormatExceptions(ConfirmPasswordFormatException confirmPasswordFormatException) {
+        return new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date)),
+                confirmPasswordFormatException.getMessage(),
+                "The format for confirmPassword is wrong"
+        );
+    }
+
 }
